@@ -1,11 +1,11 @@
-#------------------------------------------------------------------------------------------------------#
-#------------------------- INDIVIDUAL-BASED MODEL (IBM) -----------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------- INDIVIDUAL-BASED MODEL (IBM) -----------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-# Ecological traits and road traffic drive population persistence: a mechanistic modelling framework
+# Behavioural and life-history traits and road traffic drive population persistence: a mechanistic modelling framework
 #
 # Date: 2026
 # Version: 1.0
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # DESCRIPTION:
 #   This script sets up and executes the IBM simulation across all parameter
 #   combinations defined in the trait-by-traffic parameter table (pars).
@@ -16,7 +16,7 @@
 #     - 4 population categories (varying movement distance and life history)
 #     - 3 road-crossing probability ranges (low, medium, high)
 #     - 4 traffic flow levels (0, 1, 5, 10 vehicles/min)
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # POPULATION CATEGORIES:
 #   Four theoretical population types are defined based on combinations of
 #   movement range and life history strategy:
@@ -25,7 +25,7 @@
 #   Category 2: Long movement  (5–10 km/day), early maturity, high fecundity
 #   Category 3: Long movement  (5–10 km/day), late maturity, low fecundity
 #   Category 4: Short movement (1–5 km/day),  late maturity, low fecundity
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # DEPENDENCIES:
 #   tictoc       : Execution timing
 #   data.table   : Fast CSV writing and reading
@@ -38,7 +38,7 @@
 #   Install with:
 #   install.packages(c("tictoc", "data.table", "filelock",
 #                      "dplyr", "tidyr", "future", "future.apply"))
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # ---- Load required packages ----
 library(tictoc)
 library(data.table)
@@ -55,9 +55,9 @@ if (!dir.exists("logs"))   dir.create("logs")
 args <- commandArgs(trailingOnly = TRUE)
 idx  <- as.integer(args[1])
 
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # ---- SHARED OUTPUT FILES (used across parallel processes) ----
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 # File paths for results and locks
 lock_csv <- "./output/all_results.lock"
@@ -94,11 +94,11 @@ write(paste0("Simulation ", idx, " started at ", Sys.time()),
       file = log_file, append = TRUE)
 unlock(lock_l)
 
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # ---- PARAMETER TABLE ----
 # Defines all trait-by-traffic combinations passed to the IBM.
 # 120 combinations: 4 categories x 3 crossing probability ranges x 4 traffic levels
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 # Road-crossing probability ranges (low / medium / high)
 prob_cross <- dplyr::tibble(
@@ -110,7 +110,8 @@ prob_cross <- dplyr::tibble(
 pars <- tidyr::crossing(
   category     = 1:4,                    # Population categories (trait combinations)
   prob_cross,                            # Crossing probability ranges
-  traffic_flow = c(0, 1, 5, 10)         # Traffic intensity levels (vehicles/min)
+  traffic_flow = c(0, 1, 5, 10),         # Traffic intensity levels (vehicles/min)
+  replicate = 1:100
 ) |>
   dplyr::mutate(
     
@@ -157,9 +158,9 @@ pars <- tidyr::crossing(
 # 3. Crossing probability bounds define individual behavioral tendency to
 #    attempt road crossings (sampled uniformly between min and max per event).
 
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # ---- PARALLEL SIMULATION EXECUTION ----
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 # Set up parallel processing using all available cores except one
 future::plan(future::multisession, workers = parallel::detectCores() - 1)
@@ -202,9 +203,9 @@ go <- future.apply::future_lapply(
 # Stop timer
 tempo <- tictoc::toc()
 
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # ---- FINALIZE AND SAVE RESULTS ----
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 # Log simulation completion time
 lock_l <- lock(lock_log)

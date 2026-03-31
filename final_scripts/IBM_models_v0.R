@@ -1,11 +1,11 @@
-#------------------------------------------------------------------------------------------------------#
-#------------------------- INDIVIDUAL-BASED MODEL (IBM) -----------------------------------------------#
-#------------------------------------------------------------------------------------------------------#
-# Ecological traits and road traffic drive population persistence: a mechanistic modelling framework
+#------------------------------------------------------------------------------------------------------------------------#
+#------------------------- INDIVIDUAL-BASED MODEL (IBM) -----------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
+# Behavioural and life-history traits and road traffic drive population persistence: a mechanistic modelling framework
 #
 # Date: 2026
 # Version: 1.0
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # DESCRIPTION:
 #   This script implements an Individual-Based Model (IBM) that develops a 
 #   mechanistic theoretical framework to explore how traffic flows influence 
@@ -17,7 +17,7 @@
 #         different traffic flows;
 #     (2) To determine which trait combinations make a population more
 #         vulnerable under different traffic scenarios.
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # MODEL STRUCTURE:
 #   Main model:
 #     - IBM()                   : Main simulation loop (yearly > daily > steps)
@@ -34,7 +34,7 @@
 #     - move_habitat()          : Moves individual to adjacent habitat (avoidance)
 #     - move_in_road()          : Moves individual onto the road (crossing attempt)
 #     - move_out_road()         : Moves individual to the other side of the road (success crossing)
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # INPUTS:
 #   Population parameters : b (birth rate), d (death probability), K (carrying
 #                           capacity), N0 (initial population size)
@@ -44,13 +44,13 @@
 #   Trait table           : pars (data frame with species traits and interaction
 #                           parameters, including movement, speed, crossing
 #                           probability, and reproduction)
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # OUTPUTS:
 # - Annual population size
 # - Number of wildlife-vehicle collision and stochastic deaths
 # - Birth number
 # - Net growth and relative growth
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # DEPENDENCIES:
 #   terra        : Spatial raster operations and landscape management
 #   data.table   : Fast data writing (fwrite) to CSV
@@ -58,17 +58,17 @@
 #   filelock     : File locking for parallel CSV writing
 #
 #   Install with: install.packages(c("terra", "data.table", "truncnorm", "filelock"))
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 # REFERENCE:
 #   Litvaitis, J.A. & Tash, J.P. (2008). An approach toward understanding
 #   wildlife-vehicle collisions. Environmental Management, 42, 688–697.
 #   https://doi.org/10.1007/s00267-008-9108-4
-#------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------#
 
 # Clean environment
 rm(list=ls())
 
-########### MODEL IBM ########### 
+# ------------------------------------------- MODEL IBM ----------------------------------------------------------------- # 
 IBM <- function(# ---- Population Parameters ----
                 b,          # Base birth rate
                 d,          # Base death probability
@@ -265,9 +265,9 @@ IBM <- function(# ---- Population Parameters ----
   gc() # Clean memory
 } # End IBM model
 
-################################################################################
-# ********************************* SUBMODELS *********************************#
-################################################################################
+#------------------------------------------------------------------------------------------------------------------------#
+# ------------------------------------------------------ SUBMODELS ----------------------------------------------------- #
+#------------------------------------------------------------------------------------------------------------------------#
 # Function to create the landscape (grid) with habitat, road, and risk area
 create_landscape <- function(nrow, ncol, res, pars, plot = TRUE) {
   
@@ -477,9 +477,9 @@ birth <- function(env, indiv, indiv_dead, pars, b, K) {
   return(list(indiv = new_indiv_list, birth_count = birth_count))  
 }
 
-################################################################################
-# ******************************* SUB-SUBMODELS *******************************#
-################################################################################
+#------------------------------------------------------------------------------------------------------------------------#
+# --------------------------------------------------- SUB-SUBMODELS ---------------------------------------------------- #
+#------------------------------------------------------------------------------------------------------------------------#
 # Function to move an individual to an adjacent habitat cell. This is used when the individual decides not to cross the road
 move_habitat <- function(env, indiv, pars, plot_point = TRUE) {
   
@@ -603,7 +603,7 @@ move_out_road <- function(env, res, indiv, pars, plot_point = TRUE) {
   return(indiv)
 }
 
-######## TRUNCATED PARETO DISTRIBUTION FUNCTION ########
+# ------- TRUNCATED PARETO DISTRIBUTION FUNCTION ------- #
 rpareto_trunc <- function(num_step, lmin, lmax, mu) {
   u <- runif(num_step)
   ((lmax^(-mu) - lmin^(-mu)) * u + lmin^(-mu))^(-1 / mu)
